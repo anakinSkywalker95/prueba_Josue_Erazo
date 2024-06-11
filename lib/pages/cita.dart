@@ -8,6 +8,7 @@ class CitaPage extends StatefulWidget {
   final String? initialCentro;
   final String? initialEstado;
   final bool? initialImportante;
+  final String? initialDoctor;
 
   const CitaPage({
     super.key,
@@ -16,6 +17,7 @@ class CitaPage extends StatefulWidget {
     this.initialCentro,
     this.initialEstado,
     this.initialImportante,
+    this.initialDoctor,
   });
 
   @override
@@ -26,6 +28,7 @@ class _CitaPageState extends State<CitaPage> {
   final Servicios firebaseService = Servicios();
   final TextEditingController textController = TextEditingController();
   final TextEditingController centroController = TextEditingController();
+  final TextEditingController doctorController = TextEditingController();
   String estado = 'creado';
   bool importante = false;
 
@@ -43,6 +46,9 @@ class _CitaPageState extends State<CitaPage> {
     }
     if (widget.initialImportante != null) {
       importante = widget.initialImportante!;
+    }
+    if (widget.initialDoctor != null) {
+      doctorController.text = widget.initialDoctor!;
     }
   }
 
@@ -63,6 +69,7 @@ class _CitaPageState extends State<CitaPage> {
                   centroController.text,
                   estado,
                   importante,
+                  doctorController.text,
                 );
               } else {
                 firebaseService.updateNote(
@@ -71,6 +78,7 @@ class _CitaPageState extends State<CitaPage> {
                   centroController.text,
                   estado,
                   importante,
+                  doctorController.text,
                 );
               }
               context.pop();
@@ -142,6 +150,31 @@ class _CitaPageState extends State<CitaPage> {
             const SizedBox(height: 16.0),
             const Text("Reservar un doctor para tu cita",
                 style: TextStyle(color: Colors.black)),
+            DropdownButtonFormField<String>(
+              value: doctorController.text.isNotEmpty
+                  ? doctorController.text
+                  : null,
+              onChanged: (String? newValue) {
+                setState(() {
+                  doctorController.text = newValue!;
+                });
+              },
+              items: <String>[
+                'Doctor Medrano',
+                'Doctor Trejo',
+                'Doctor Mejia',
+                'Doctor Martinez'
+              ].map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+              decoration: const InputDecoration(
+                hintText: 'Seleccione un doctor',
+                hintStyle: TextStyle(color: Colors.grey),
+              ),
+            ),
             CheckboxListTile(
               value: importante,
               onChanged: (bool? newValue) {

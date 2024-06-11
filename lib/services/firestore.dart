@@ -10,7 +10,7 @@ class Servicios {
     String note,
     String centro,
     String estado,
-    bool importante,
+    bool importante, String text,
   ) {
     return notas.add({
       'note': note,
@@ -27,7 +27,7 @@ class Servicios {
 
   //---------------- update ----------------
   Future<void> updateNote(String docID, String newNote, String centro,
-      String estado, bool importante) {
+      String estado, bool importante, String text) {
     return notas.doc(docID).update({
       'note': newNote,
       'Centro': centro,
