@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tarea/services/firestore.dart';
 
@@ -17,73 +17,72 @@ class _AgendaPageState extends State<AgendaPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Agenda",
-            style: TextStyle(color: Colors.white, fontFamily: 'Roboto')),
-        backgroundColor: Colors.blueGrey,
+        title: const Text(
+          "AGENDA",
+          style: TextStyle(
+            fontFamily: 'Arial',
+            fontSize: 20.0,
+            color: Colors.white, // Cambiado a blanco
+            fontWeight: FontWeight.bold, // Cambiado a negrita
+          ),
+        ),
+        backgroundColor: Colors.blue[800],
         centerTitle: true,
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          context.go('/cita');
-        },
-        backgroundColor: Colors.blueGrey,
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: firebaseService.getNotesStream(),
+        stream: firebaseService.getCitasStream(),
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            List<DocumentSnapshot> notesList = snapshot.data!.docs;
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text('No hay citas'));
+          } else {
+            List<DocumentSnapshot> citasList = snapshot.data!.docs;
             return ListView.builder(
-              itemCount: notesList.length,
+              itemCount: citasList.length,
               itemBuilder: (context, index) {
-                DocumentSnapshot document = notesList[index];
+                DocumentSnapshot document = citasList[index];
                 String docID = document.id;
                 Map<String, dynamic> data =
                     document.data() as Map<String, dynamic>;
-                String noteText = data['note'];
-                String centro = data['Centro'];
-                String estado = data['estado'];
-                bool importante = data['importante'];
+
+                String noteText = data['note'] ?? 'Nota sin texto';
+                String centro = data['centro'] ?? 'Centro desconocido';
+                String estado = data['estado'] ?? 'Desconocido';
+                bool importante = data['importante'] ?? false;
 
                 return Container(
                   margin: const EdgeInsets.symmetric(
                       vertical: 5.0, horizontal: 10.0),
                   padding: const EdgeInsets.all(10.0),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: index % 2 == 0 ? Colors.white : Colors.grey[300],
                     borderRadius: BorderRadius.circular(10.0),
-                    border: Border.all(color: Colors.grey[300]!),
                   ),
                   child: ListTile(
-                    title: Text(noteText,
-                        style: const TextStyle(
-                            color: Colors.black, fontFamily: 'Roboto')),
+                    title: Text(noteText),
                     subtitle: Text(
-                        'Centro: $centro\nEstado: $estado\nImportante: ${importante ? 'Sí' : 'No'}',
-                        style: const TextStyle(
-                            color: Colors.black, fontFamily: 'Roboto')),
+                        'Centro: $centro\nEstado: $estado\nImportante: ${importante ? 'Sí' : 'No'}'),
                     trailing: SizedBox(
                       width: 100,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           IconButton(
-                            onPressed: () {
-                              context.go('/cita', extra: {
-                                'docID': docID,
-                                'initialNote': noteText,
-                                'initialCentro': centro,
-                                'initialEstado': estado,
-                                'initialImportante': importante,
-                              });
-                            },
-                            icon: const Icon(Icons.settings,
-                                color: Colors.blueGrey),
+                            onPressed: () => _openCitaPage(
+                              docID: docID,
+                              initialNote: noteText,
+                              initialCentro: centro,
+                              initialEstado: estado,
+                              initialImportante: importante,
+                            ),
+                            icon: const Icon(Icons.settings),
                           ),
                           IconButton(
-                            onPressed: () => firebaseService.deleteNote(docID),
-                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => _deleteCita(docID),
+                            icon: const Icon(Icons.delete),
                           ),
                         ],
                       ),
@@ -92,18 +91,36 @@ class _AgendaPageState extends State<AgendaPage> {
                 );
               },
             );
-          } else {
-            return Center(
-              child: Container(
-                padding: const EdgeInsets.all(16.0),
-                child: const Text('No hay citas',
-                    style:
-                        TextStyle(color: Colors.black, fontFamily: 'Roboto')),
-              ),
-            );
           }
         },
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.go("/cita"),
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  void _deleteCita(String docID) {
+    firebaseService.deleteCita(docID);
+  }
+
+  void _openCitaPage({
+    String? docID,
+    String? initialNote,
+    String? initialCentro,
+    String? initialEstado,
+    bool? initialImportante,
+  }) {
+    context.go(
+      '/cita',
+      extra: {
+        'docID': docID,
+        'initialNote': initialNote,
+        'initialCentro': initialCentro,
+        'initialEstado': initialEstado,
+        'initialImportante': initialImportante,
+      },
     );
   }
 }

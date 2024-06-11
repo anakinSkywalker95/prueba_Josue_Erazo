@@ -8,7 +8,6 @@ class CitaPage extends StatefulWidget {
   final String? initialCentro;
   final String? initialEstado;
   final bool? initialImportante;
-  final String? initialDoctor;
 
   const CitaPage({
     super.key,
@@ -17,7 +16,6 @@ class CitaPage extends StatefulWidget {
     this.initialCentro,
     this.initialEstado,
     this.initialImportante,
-    this.initialDoctor,
   });
 
   @override
@@ -26,9 +24,8 @@ class CitaPage extends StatefulWidget {
 
 class _CitaPageState extends State<CitaPage> {
   final Servicios firebaseService = Servicios();
-  final TextEditingController textController = TextEditingController();
+  final TextEditingController noteController = TextEditingController();
   final TextEditingController centroController = TextEditingController();
-  final TextEditingController doctorController = TextEditingController();
   String estado = 'creado';
   bool importante = false;
 
@@ -36,7 +33,7 @@ class _CitaPageState extends State<CitaPage> {
   void initState() {
     super.initState();
     if (widget.initialNote != null) {
-      textController.text = widget.initialNote!;
+      noteController.text = widget.initialNote!;
     }
     if (widget.initialCentro != null) {
       centroController.text = widget.initialCentro!;
@@ -47,42 +44,49 @@ class _CitaPageState extends State<CitaPage> {
     if (widget.initialImportante != null) {
       importante = widget.initialImportante!;
     }
-    if (widget.initialDoctor != null) {
-      doctorController.text = widget.initialDoctor!;
+  }
+
+  void save(BuildContext context) {
+    if (widget.docID == null) {
+      firebaseService.addCita(
+        noteController.text,
+        centroController.text,
+        estado,
+        importante,
+      );
+    } else {
+      firebaseService.updateCita(
+        widget.docID!,
+        noteController.text,
+        centroController.text,
+        estado,
+        importante,
+      );
     }
+    context.go('/');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:
-            const Text("Asignar Cita", style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.blueGrey,
+        title: Center(
+          // Centrado
+          child: Text(
+            "ASIGNAR CITA",
+            style: TextStyle(
+              fontFamily: 'Arial',
+              fontSize: 20.0,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        backgroundColor: Colors.blue[800],
         actions: [
           IconButton(
-            icon: const Icon(Icons.check, color: Colors.white),
-            onPressed: () {
-              if (widget.docID == null) {
-                firebaseService.addNote(
-                  textController.text,
-                  centroController.text,
-                  estado,
-                  importante,
-                  doctorController.text,
-                );
-              } else {
-                firebaseService.updateNote(
-                  widget.docID!,
-                  textController.text,
-                  centroController.text,
-                  estado,
-                  importante,
-                  doctorController.text,
-                );
-              }
-              context.pop();
-            },
+            icon: const Icon(Icons.check),
+            onPressed: () => save(context),
           ),
         ],
       ),
@@ -91,8 +95,7 @@ class _CitaPageState extends State<CitaPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Seleccione un centro médico",
-                style: TextStyle(color: Colors.black)),
+            const Text("Seleccione un centro médico"),
             DropdownButtonFormField<String>(
               value: centroController.text.isNotEmpty
                   ? centroController.text
@@ -115,19 +118,16 @@ class _CitaPageState extends State<CitaPage> {
               }).toList(),
               decoration: const InputDecoration(
                 hintText: 'Seleccione un centro médico',
-                hintStyle: TextStyle(color: Colors.grey),
               ),
             ),
             const SizedBox(height: 16.0),
-            const Text("Fecha", style: TextStyle(color: Colors.black)),
+            const Text("Fecha"),
             TextField(
-              controller: textController,
-              decoration: const InputDecoration(
-                  hintText: 'Escriba la fecha',
-                  hintStyle: TextStyle(color: Colors.grey)),
+              controller: noteController,
+              decoration: const InputDecoration(hintText: 'Escriba la fecha'),
             ),
             const SizedBox(height: 16.0),
-            const Text("Jornada", style: TextStyle(color: Colors.black)),
+            const Text("Jornada"),
             DropdownButtonFormField<String>(
               value: estado.isNotEmpty ? estado : null,
               onChanged: (String? newValue) {
@@ -144,37 +144,10 @@ class _CitaPageState extends State<CitaPage> {
               }).toList(),
               decoration: const InputDecoration(
                 hintText: 'Seleccione la jornada',
-                hintStyle: TextStyle(color: Colors.grey),
               ),
             ),
             const SizedBox(height: 16.0),
-            const Text("Reservar un doctor para tu cita",
-                style: TextStyle(color: Colors.black)),
-            DropdownButtonFormField<String>(
-              value: doctorController.text.isNotEmpty
-                  ? doctorController.text
-                  : null,
-              onChanged: (String? newValue) {
-                setState(() {
-                  doctorController.text = newValue!;
-                });
-              },
-              items: <String>[
-                'Doctor Medrano',
-                'Doctor Trejo',
-                'Doctor Mejia',
-                'Doctor Martinez'
-              ].map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              decoration: const InputDecoration(
-                hintText: 'Seleccione un doctor',
-                hintStyle: TextStyle(color: Colors.grey),
-              ),
-            ),
+            const Text("Reservar un doctor para tu cita"),
             CheckboxListTile(
               value: importante,
               onChanged: (bool? newValue) {
@@ -182,17 +155,13 @@ class _CitaPageState extends State<CitaPage> {
                   importante = newValue!;
                 });
               },
-              title: const Text('Importante',
-                  style: TextStyle(color: Colors.black)),
+              title: const Text('Importante'),
             ),
             const SizedBox(height: 16.0),
             ElevatedButton(
-              onPressed: () {
-                // Agrega lógica para buscar doctor
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.blueGrey),
-              child: const Text('Buscar doctor',
-                  style: TextStyle(color: Colors.white)),
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              child: const Text('Buscar doctor'),
             ),
           ],
         ),
