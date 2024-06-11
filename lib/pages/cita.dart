@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tarea/services/firestore.dart';
@@ -51,11 +50,12 @@ class _CitaPageState extends State<CitaPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Asignar Cita", style: TextStyle(color: Colors.black, fontFamily: 'Roboto')),
-        backgroundColor: Colors.white,
+        title:
+            const Text("Asignar Cita", style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.blueGrey,
         actions: [
           IconButton(
-            icon: const Icon(Icons.check, color: Colors.black),
+            icon: const Icon(Icons.check, color: Colors.white),
             onPressed: () {
               if (widget.docID == null) {
                 firebaseService.addNote(
@@ -83,7 +83,8 @@ class _CitaPageState extends State<CitaPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Seleccione un centro médico", style: TextStyle(color: Colors.black, fontFamily: 'Roboto')),
+            const Text("Seleccione un centro médico",
+                style: TextStyle(color: Colors.black)),
             DropdownButtonFormField<String>(
               value: centroController.text.isNotEmpty
                   ? centroController.text
@@ -101,22 +102,24 @@ class _CitaPageState extends State<CitaPage> {
               ].map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
-                  child: Text(value, style: const TextStyle(color: Colors.black, fontFamily: 'Roboto')),
+                  child: Text(value),
                 );
               }).toList(),
               decoration: const InputDecoration(
                 hintText: 'Seleccione un centro médico',
-                hintStyle: TextStyle(color: Colors.grey, fontFamily: 'Roboto'),
+                hintStyle: TextStyle(color: Colors.grey),
               ),
             ),
             const SizedBox(height: 16.0),
-            const Text("Fecha", style: TextStyle(color: Colors.black, fontFamily: 'Roboto')),
+            const Text("Fecha", style: TextStyle(color: Colors.black)),
             TextField(
               controller: textController,
-              decoration: const InputDecoration(hintText: 'Escriba la fecha', hintStyle: TextStyle(color: Colors.grey, fontFamily: 'Roboto')),
+              decoration: const InputDecoration(
+                  hintText: 'Escriba la fecha',
+                  hintStyle: TextStyle(color: Colors.grey)),
             ),
             const SizedBox(height: 16.0),
-            const Text("Jornada", style: TextStyle(color: Colors.black, fontFamily: 'Roboto')),
+            const Text("Jornada", style: TextStyle(color: Colors.black)),
             DropdownButtonFormField<String>(
               value: estado.isNotEmpty ? estado : null,
               onChanged: (String? newValue) {
@@ -128,16 +131,17 @@ class _CitaPageState extends State<CitaPage> {
                   .map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
-                  child: Text(value, style: const TextStyle(color: Colors.black, fontFamily: 'Roboto')),
+                  child: Text(value),
                 );
               }).toList(),
               decoration: const InputDecoration(
                 hintText: 'Seleccione la jornada',
-                hintStyle: TextStyle(color: Colors.grey, fontFamily: 'Roboto'),
+                hintStyle: TextStyle(color: Colors.grey),
               ),
             ),
             const SizedBox(height: 16.0),
-            const Text("Reservar un doctor para tu cita", style: TextStyle(color: Colors.black, fontFamily: 'Roboto')),
+            const Text("Reservar un doctor para tu cita",
+                style: TextStyle(color: Colors.black)),
             CheckboxListTile(
               value: importante,
               onChanged: (bool? newValue) {
@@ -145,15 +149,17 @@ class _CitaPageState extends State<CitaPage> {
                   importante = newValue!;
                 });
               },
-              title: const Text('Importante', style: TextStyle(color: Colors.black, fontFamily: 'Roboto')),
+              title: const Text('Importante',
+                  style: TextStyle(color: Colors.black)),
             ),
             const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () {
                 // Agrega lógica para buscar doctor
               },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
-              child: const Text('Buscar doctor', style: TextStyle(color: Colors.black, fontFamily: 'Roboto')),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.blueGrey),
+              child: const Text('Buscar doctor',
+                  style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
